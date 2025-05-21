@@ -1,44 +1,56 @@
 const express = require('express');
-const fetch = require('node-fetch');
 const cors = require('cors');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-// ✅ HOME ROUTE: Shows basic status for public access
 app.get('/', (req, res) => {
-  res.send('🛩️ AI Copilot Proxy is live');
+  res.send('🛩️ Pilot Copilot AI backend is live!');
 });
 
-// ✅ AI Copilot route
 app.post('/ask', async (req, res) => {
+  console.log("Request body received:", req.body);
+
   const { message } = req.body;
-  if (!message) return res.status(400).json({ error: 'Missing message' });
 
-  // Simulated AI response (can replace with real OpenAI later)
-  const reply = `🧠 Copilot AI response to: "${message}"\n\n- Suggested route\n- Fuel tips\n- Weather alerts\n- Checklist ready`;
-
-  res.json({ reply });
-});
-
-// ✅ METAR proxy route
-app.get('/metar', async (req, res) => {
-  const { icao, format = 'decoded' } = req.query;
-  if (!icao) return res.status(400).send('Missing ICAO code');
-
-  try {
-    const weatherRes = await fetch(`https://aviationweather.gov/api/data/metar.php?ids=${icao}&format=${format}`);
-    const text = await weatherRes.text();
-    res.send(text);
-  } catch (err) {
-    console.error('Weather fetch failed:', err);
-    res.status(500).send('Weather fetch failed');
+  if (!message || message.trim() === '') {
+    return res.status(400).json({ error: 'Missing message' });
   }
+
+  const data = {
+    route: "KISP DCT CCC V308 MAD V374 GON",
+    departureTime: "14:30 EST",
+    weather: "Winds 250° at 12 kt, visibility 10 miles, scattered clouds at 3000 ft.",
+    performance: {
+      takeoff: "865 ft",
+      landing: "520 ft",
+      vx: "62 KIAS",
+      vy: "74 KIAS",
+      va: "90 KIAS"
+    },
+    fuel: {
+      start: "48 gal",
+      burn: "8 gal",
+      remaining: "40 gal",
+      perWaypoint: {
+        "CCC": "2 gal",
+        "MAD": "3 gal",
+        "GON": "3 gal"
+      }
+    },
+    notes: [
+      "Alternate: KHVN",
+      "Fuel stop: KOXC",
+      "Nearby museum: Submarine Force Library & Museum"
+    ]
+  };
+
+  res.json({ data });
 });
 
 app.listen(port, () => {
-  console.log(`✅ AI Copilot Proxy running on port ${port}`);
+  console.log(`✅ Pilot Copilot AI server running on port ${port}`);
 });
