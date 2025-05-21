@@ -5,14 +5,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // ✅ This is the correct body parser
 
 app.get('/', (req, res) => {
   res.send('🛩️ Pilot Copilot AI backend is live!');
 });
 
 app.post('/ask', async (req, res) => {
-  console.log("Request body received:", req.body);
+  console.log("Request body received:", req.body); // 👀 Should now show the message
 
   const { message } = req.body;
 
